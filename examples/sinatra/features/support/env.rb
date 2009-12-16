@@ -16,7 +16,6 @@ end
 require 'webrat/core/matchers'
 
 # email testing in cucumber
-require 'activesupport'
 require File.expand_path(File.dirname(__FILE__) + '../../../../../lib/email_spec')
 require 'email_spec/cucumber'
 
