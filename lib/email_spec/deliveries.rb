@@ -59,11 +59,15 @@ module EmailSpec
     if defined?(Pony)
       def mailer; Pony; end
       include EmailSpec::MailerDeliveries
-    elsif ActionMailer::Base.delivery_method == :activerecord
-      include EmailSpec::ARMailerDeliveries
+    elsif defined? (ActionMailer)
+      if ActionMailer::Base.delivery_method == :activerecord
+        include EmailSpec::ARMailerDeliveries
+      else
+        def mailer; ActionMailer::Base; end
+        include EmailSpec::MailerDeliveries
+      end
     else
-      def mailer; ActionMailer::Base; end
-      include EmailSpec::MailerDeliveries
+      #no mail sender available
     end
     include EmailSpec::BackgroundProcesses::Compatibility
   end

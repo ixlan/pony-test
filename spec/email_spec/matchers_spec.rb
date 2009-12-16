@@ -1,10 +1,6 @@
-
 require File.dirname(__FILE__) + '/../spec_helper'
 
-
-
 describe EmailSpec::Matchers do
-
 
     class MatcherMatch
 
