@@ -8,7 +8,6 @@ module EmailSpec
 
       def self.mail(options)
         deliveries << build_tmail(options)
-        puts deliveries.length
       end
     end
   end

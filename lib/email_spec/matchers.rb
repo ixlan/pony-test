@@ -1,7 +1,9 @@
 module EmailSpec
-  module Matchers
+
+    module Matchers
 
     class DeliverTo
+
       def initialize(expected_email_addresses_or_objects_that_respond_to_email)
         emails = expected_email_addresses_or_objects_that_respond_to_email.map do |email_or_object|
           email_or_object.kind_of?(String) ? email_or_object : email_or_object.email
@@ -16,7 +18,7 @@ module EmailSpec
 
       def matches?(email)
         @email = email
-        @actual_recipients = (email.to || []).sort
+        @actual_recipients = (Array(email.to) || []).sort
         @actual_recipients == @expected_email_addresses
       end
 
@@ -36,6 +38,7 @@ module EmailSpec
     alias :be_delivered_to :deliver_to
 
     class DeliverFrom
+
       def initialize(email)
         @expected_email_addresses = email
       end
@@ -66,6 +69,7 @@ module EmailSpec
     alias :be_delivered_from :deliver_from
 
     class BccTo
+
       def initialize(expected_email_addresses_or_objects_that_respond_to_email)
         emails = expected_email_addresses_or_objects_that_respond_to_email.map do |email_or_object|
           email_or_object.kind_of?(String) ? email_or_object : email_or_object.email
@@ -80,7 +84,7 @@ module EmailSpec
 
       def matches?(email)
         @email = email
-        @actual_recipients = (email.bcc || []).sort
+        @actual_recipients = (Array(email.bcc) || []).sort
         @actual_recipients == @expected_email_addresses
       end
 
