@@ -1,18 +1,23 @@
 = Email Spec
 
-A collection of RSpec matchers and Cucumber steps to make testing emails go smoothly.
-
+A collection of RSpec matchers and Cucumber steps to make testing email with Pony or ActionMailer go smoothly.
+This project is based on http://github.com/bmabey/email-spec, if you are a Rails user, you should probably use that project instead.
+This project aims to make email_spec framework agnostic by removing default reliance on ActionMailer and ActiveSupport, and removing Rails specific generators and whatnot.
 
 == Setup
 
-  script/plugin install git://github.com/bmabey/email-spec.git
+Right now, I am including this project into others that need it using git submodules.  Inside your project:
 
-=== Gem Setup
-   
-  gem install email_spec
+  git submodule add git://github.com/johnmendonca/email-spec.git email_spec
 
-  # config/environments/test.rb
-  config.gem 'email_spec', :lib => 'email_spec'
+This will create a subdir in your project called email_spec that contains this repository.  To require files from this folder, you may first want to add the <tt>lib</tt> dir to the load path.  For example, from the file <tt>spec/spec_helper.rb</tt> you could add:
+
+  $: << File.join(File.expand_path(File.dirname(__FILE__)), %w{ .. email_spec lib })
+  
+  ...
+  require 'email_spec'
+
+There is no gem for this project now, as there already exists one for the upstream project.
 
 === Cucumber
 
