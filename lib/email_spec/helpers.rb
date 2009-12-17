@@ -2,7 +2,6 @@ require 'uri'
 require 'email_spec/deliveries'
 
 module EmailSpec
-
   module Helpers
     include Deliveries
 
@@ -143,7 +142,5 @@ module EmailSpec
       puts "DEPRECATION: #{text.split.join(' ')}"
       puts ""
     end
-
   end
 end
-

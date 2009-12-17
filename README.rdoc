@@ -1,8 +1,8 @@
 = Email Spec
 
-A collection of RSpec matchers and Cucumber steps to make testing email with Pony or ActionMailer go smoothly.
-This project is based on http://github.com/bmabey/email-spec, if you are a Rails user, you should probably use that project instead.
-This project aims to make email_spec framework agnostic by removing default reliance on ActionMailer and ActiveSupport, and removing Rails specific generators and whatnot.
+A collection of RSpec matchers and Cucumber steps to make testing email with Pony go smoothly.
+This project is based on http://github.com/bmabey/email-spec, if you use Rails or ActionMailer, you should use that project instead.
+This project aims to make email_spec smaller and easier to understand by elminating default usage of Rails and ActionMailer.
 
 == Setup
 

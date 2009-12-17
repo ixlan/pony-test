@@ -10,5 +10,3 @@ require 'email_spec/address_converter'
 require 'email_spec/email_viewer'
 require 'email_spec/helpers'
 require 'email_spec/matchers'
-
-
