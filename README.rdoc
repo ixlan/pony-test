@@ -28,7 +28,11 @@ To use email_spec in Cucumber include the helpers and matchers in <tt>features/s
     include EmailSpec::Matchers
   end
 
-This will load all the helpers that the steps rely on.
+This will load all the helpers that the steps rely on. You probably want all emails to be cleared for each scenario:
+
+  Before do
+    reset_mailer
+  end
 
 Also, copy <tt>email_steps.rb</tt> to <tt>features/step_definitions</tt> to get access to many predifined steps.
 
@@ -49,6 +53,8 @@ Also, copy <tt>email_steps.rb</tt> to <tt>features/step_definitions</tt> to get 
     include EmailSpec::Matchers
     ...
   end
+
+  Remember to call <tt>reset_mailer</tt> in a <tt>before</tt> block or whenever you want the emails to be reset.
 
 == Usage
 
