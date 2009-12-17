@@ -13,16 +13,14 @@ Webrat.configure do |config|
   config.mode = :rack
 end
 
-require 'webrat/core/matchers'
-
-# email testing in cucumber
 require File.expand_path(File.dirname(__FILE__) + '../../../../../lib/email_spec')
-require 'email_spec/cucumber'
 
 class AppWorld
   include Rack::Test::Methods
   include Webrat::Methods
   include Webrat::Matchers
+  include EmailSpec::Helpers
+  include EmailSpec::Matchers
 
   def app
     Sinatra::Application.new
