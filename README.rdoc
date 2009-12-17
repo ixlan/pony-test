@@ -21,28 +21,20 @@ There is no gem for this project now, as there already exists one for the upstre
 
 === Cucumber
 
-To use the steps in features put the following in your env.rb:
+To use email_spec in Cucumber include the helpers and matchers in <tt>features/support/env.rb</tt>:
 
-  # Make sure this require is after you require cucumber/rails/world.
-  require 'email_spec/cucumber'
+  World do
+    include EmailSpec::Helpers
+    include EmailSpec::Matchers
+  end
 
 This will load all the helpers that the steps rely on.
-It will also add a Before hook for Cucumber so that emails are cleared at the start of each scenario.
 
-Then:
-
-  script/generate email_spec
-
-This will give you a bunch of steps to get started with in step_definitions/email_steps.rb
+Also, copy <tt>email_steps.rb</tt> to <tt>features/step_definitions</tt> to get access to many predifined steps.
 
 === RSpec
 
-  First you need to require the helpers and matchers in your spec_helper.rb like so:
-
-  require "email_spec/helpers"
-  require "email_spec/matchers"
-
-  You will then need to include EmailSpec::Helpers and EmailSpec::Matchers in your example groups.
+  You will need to include EmailSpec::Helpers and EmailSpec::Matchers in your example groups.
   If you want to have access to the helpers and matchers in all of your examples you can do the following in your spec_helper.rb:
 
   Spec::Runner.configure do |config|
