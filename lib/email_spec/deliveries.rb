@@ -35,7 +35,6 @@ module EmailSpec
     def mailbox_for(address)
       mailer.deliveries.select { |m| m.to.include?(address) || (m.bcc && m.bcc.include?(address)) || (m.cc && m.cc.include?(address)) }
     end
-    include EmailSpec::BackgroundProcesses::Compatibility
   end
 end
 
