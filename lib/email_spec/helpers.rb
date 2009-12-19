@@ -39,23 +39,6 @@ module EmailSpec
       mailer.deliveries.select { |m| m.to.include?(address) || (m.bcc && m.bcc.include?(address)) || (m.cc && m.cc.include?(address)) }
     end
 
-    def visit_in_email(link_text)
-      visit(parse_email_for_link(current_email, link_text))
-    end
-
-    def click_email_link_matching(regex, email = current_email)
-      url = links_in_email(email).detect { |link| link =~ regex }
-      raise "No link found matching #{regex.inspect} in #{email.body}" unless url
-      request_uri = URI::parse(url).request_uri
-      visit request_uri
-    end
-
-    def click_first_link_in_email(email = current_email)
-      link = links_in_email(email).first
-      request_uri = URI::parse(link).request_uri
-      visit request_uri
-    end
-
     def open_email(address, opts={})
       set_current_email(find_email!(address, opts))
     end
@@ -96,8 +79,21 @@ module EmailSpec
       end
     end
 
-    def links_in_email(email)
-      URI.extract(email.body, ['http', 'https'])
+    #
+    # Finding links
+    #
+    
+    def email_links(email = current_email)
+      links = URI.extract(email.body, ['http', 'https'])
+      raise "No links found in #{email.body}" if links.nil? || links.empty?
+      links
+    end
+
+    def email_link_matching(pattern, email = current_email)
+      pattern = /#{Regexp.escape(pattern)}/ unless pattern.is_a?(Regexp)
+      links = email_links(email).select { |link| link =~ pattern }
+      raise "No link found matching #{pattern.inspect} in #{email.body}" if links.nil? || links.empty?
+      links
     end
 
     private
@@ -122,30 +118,6 @@ module EmailSpec
         email_spec_hash[:current_emails][to] = email
       end
       email_spec_hash[:current_email] = email
-    end
-
-    def parse_email_for_link(email, text_or_regex)
-      email.should have_body_text(text_or_regex)
-
-      url = parse_email_for_explicit_link(email, text_or_regex)
-      url ||= parse_email_for_anchor_text_link(email, text_or_regex)
-
-      raise "No link found matching #{text_or_regex.inspect} in #{email}" unless url
-      url
-    end
-
-    # e.g. confirm in http://confirm
-    def parse_email_for_explicit_link(email, regex)
-      regex = /#{Regexp.escape(regex)}/ unless regex.is_a?(Regexp)
-      url = links_in_email(email).detect { |link| link =~ regex }
-      URI::parse(url).request_uri if url
-    end
-
-    # e.g. Click here in  <a href="http://confirm">Click here</a>
-    def parse_email_for_anchor_text_link(email, link_text)
-      email.body =~ %r{<a[^>]*href=['"]?([^'"]*)['"]?[^>]*?>[^<]*?#{link_text}[^<]*?</a>}
-      URI.split($~[1])[5..-1].compact!.join("?").gsub("&amp;", "&")
-      # sub correct ampersand after rails switches it (http://dev.rubyonrails.org/ticket/4002)
     end
 
     def parse_email_count(amount)

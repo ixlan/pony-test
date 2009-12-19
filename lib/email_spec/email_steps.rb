@@ -6,16 +6,17 @@
 # last_email_address
 # reset_mailer
 # open_last_email
-# visit_in_email
 # unread_emails_for
 # mailbox_for
 # current_email
 # open_email
 # read_emails_for
 # find_email
+# email_links
+# email_links_matching
 #
 # General form for email scenarios are:
-#   - clear the email queue (done automatically by email_spec)
+#   - clear the email queue
 #   - execute steps that sends an email
 #   - check the user received an/no/[0-9] emails
 #   - open the email
@@ -109,11 +110,11 @@ end
 # Interact with Email Contents
 #
 
-When /^(?:I|they) follow "([^"]*?)" in the email$/ do |link|
-  visit_in_email(link)
+When /^(?:I|they) follow "([^"]*?)" in the email$/ do |text|
+  visit email_links_matching(text).first
 end
 
 When /^(?:I|they) click the first link in the email$/ do
-  click_first_link_in_email
+  visit email_links.first
 end
 
