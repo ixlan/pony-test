@@ -12,7 +12,14 @@ module EmailSpec
     end
   end
 
-  module MailerDeliveries
+  module Deliveries
+    if defined?(Pony)
+      def mailer; Pony; end
+    else
+      #no mail sender available
+      def mailer; raise("email_spec requires Pony"); end
+    end
+
     def all_emails
       mailer.deliveries
     end
@@ -27,15 +34,6 @@ module EmailSpec
 
     def mailbox_for(address)
       mailer.deliveries.select { |m| m.to.include?(address) || (m.bcc && m.bcc.include?(address)) || (m.cc && m.cc.include?(address)) }
-    end
-  end
-
-  module Deliveries
-    if defined?(Pony)
-      def mailer; Pony; end
-      include EmailSpec::MailerDeliveries
-    else
-      #no mail sender available
     end
     include EmailSpec::BackgroundProcesses::Compatibility
   end
