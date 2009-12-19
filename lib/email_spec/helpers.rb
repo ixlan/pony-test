@@ -131,15 +131,8 @@ module EmailSpec
       @last_email_address = (address || current_email_address)
     end
 
-
     def mailbox_for(address)
       super(convert_address(address)) # super resides in Deliveries
-    end
-
-    def email_spec_deprecate(text)
-      puts ""
-      puts "DEPRECATION: #{text.split.join(' ')}"
-      puts ""
     end
   end
 end
