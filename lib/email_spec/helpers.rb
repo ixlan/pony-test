@@ -129,7 +129,6 @@ module EmailSpec
 
     def convert_address(address)
       @last_email_address = (address || current_email_address)
-      AddressConverter.instance.convert(@last_email_address)
     end
 
 
