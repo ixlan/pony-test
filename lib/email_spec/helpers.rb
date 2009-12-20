@@ -89,7 +89,7 @@ module EmailSpec
       links
     end
 
-    def email_link_matching(pattern, email = current_email)
+    def email_links_matching(pattern, email = current_email)
       pattern = /#{Regexp.escape(pattern)}/ unless pattern.is_a?(Regexp)
       links = email_links(email).select { |link| link =~ pattern }
       raise "No link found matching #{pattern.inspect} in #{email.body}" if links.nil? || links.empty?
