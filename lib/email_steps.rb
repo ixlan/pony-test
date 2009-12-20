@@ -1,6 +1,5 @@
 # Commonly used email steps
 #
-# To add your own steps make a custom_email_steps.rb
 # The provided methods are:
 #
 # all_emails

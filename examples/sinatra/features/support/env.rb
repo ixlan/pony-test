@@ -13,14 +13,13 @@ Webrat.configure do |config|
   config.mode = :rack
 end
 
-require File.expand_path(File.dirname(__FILE__) + '../../../../../lib/email_spec')
+require File.expand_path(File.dirname(__FILE__) + '../../../../../lib/pony_test')
 
 class AppWorld
   include Rack::Test::Methods
   include Webrat::Methods
   include Webrat::Matchers
-  include EmailSpec::Helpers
-  include EmailSpec::Matchers
+  include PonyTest::Helpers
 
   def app
     Sinatra::Application.new

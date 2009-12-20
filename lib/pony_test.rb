@@ -1,10 +1,10 @@
 require 'uri'
 
 unless defined?(Pony)
-  Kernel.warn("Pony needs to be loaded for email-spec to function.")
+  Kernel.warn("Pony needs to be loaded for pony-test to function.")
 end
 
-module EmailSpec
+module PonyTest
 
   if defined?(Pony)
     #reopen Pony module and replace mail method
@@ -16,7 +16,7 @@ module EmailSpec
       def self.mail(options)
         email = build_tmail(options)
         deliveries << email
-        EmailSpec::Helpers.current_email = email
+        PonyTest::Helpers.current_email = email
       end
     end
   end
@@ -26,7 +26,7 @@ module EmailSpec
       def mailer; Pony; end
     else
       #no mail sender available
-      def mailer; raise("email_spec requires Pony"); end
+      def mailer; raise("pony-test requires Pony"); end
     end
 
     # current_email is the last email either sent or opened
