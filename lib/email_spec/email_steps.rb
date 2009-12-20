@@ -3,15 +3,14 @@
 # To add your own steps make a custom_email_steps.rb
 # The provided methods are:
 #
-# last_email_address
+# all_emails
+# last_email_sent
 # reset_mailer
-# open_last_email
-# unread_emails_for
-# mailbox_for
+# current_email_address
 # current_email
-# open_email
-# read_emails_for
-# find_email
+# inbox, inbox_for
+# open_email, open_email_for
+# find_email, find_email_for
 # email_links
 # email_links_matching
 #
@@ -24,17 +23,6 @@
 #   - interact with the email (e.g. click links)
 #
 # The Cucumber steps below are setup in this order.
-
-module EmailHelpers
-  def current_email_address
-    # Replace with your a way to find your current email. e.g @current_user.email
-    # last_email_address will return the last email address used by email spec to find an email.
-    # Note that last_email_address will be reset after each Scenario.
-    last_email_address || "example@example.com"
-  end
-end
-
-World(EmailHelpers)
 
 #
 # Reset the e-mail queue within a scenario.
@@ -49,22 +37,13 @@ end
 # Check how many emails have been sent/received
 #
 
-Then /^(?:I|they|"([^"]*?)") should receive (an|no|\d+) emails?$/ do |address, amount|
-  unread_emails_for(address).size.should == parse_email_count(amount)
-end
-
 Then /^(?:I|they|"([^"]*?)") should have (an|no|\d+) emails?$/ do |address, amount|
-  mailbox_for(address).size.should == parse_email_count(amount)
+  inbox_for(address).size.should == parse_email_count(amount)
 end
 
 #
 # Accessing emails
 #
-
-# Opens the most recently received email
-When /^(?:I|they|"([^"]*?)") opens? the email$/ do |address|
-  open_email(address)
-end
 
 When /^(?:I|they|"([^"]*?)") opens? the email with subject "([^"]*?)"$/ do |address, subject|
   open_email(address, :with_subject => subject)
