@@ -25,7 +25,6 @@
 
 #
 # Reset the e-mail queue within a scenario.
-# This is done automatically before each scenario.
 #
 
 Given /^(?:a clear email queue|no emails have been sent)$/ do
@@ -92,7 +91,7 @@ When /^(?:I|they) follow "([^"]*?)" in the email$/ do |text|
   visit email_links_matching(text).first
 end
 
-When /^(?:I|they) click the first link in the email$/ do
+When /^(?:I|they) visit the first link in the email$/ do
   visit email_links.first
 end
 
