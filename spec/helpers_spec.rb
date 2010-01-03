@@ -19,9 +19,9 @@ describe Pony::TestStruct do
   EMAIL_CC = { :to => 'rob@example.com', :cc => 'foo@example.com', :from => 'nib@example.com', :subject => 'Come on already', :body => 'Geez' }
   EMAIL_BCC = { :to => 'neb@example.com', :bcc => 'foo@example.com', :from => 'nib@example.com', :subject => 'Hello joe', :body => 'Man' }
   
-  LINKS = ['http://example.com/foobar', 'https://www.example.com' 'http://example.com/food/']
+  LINKS = ['http://example.com/foobar', 'https://www.example.com', 'http://example.com/food/']
   EMAIL_LINKS_1 = { :to => 'foo@example.com', :from => 'bar@example.com', :subject => 'Coffee', :body => 'Hi ' + LINKS[0] + ' ' + LINKS[1] }
-  EMAIL_LINKS_2 = { :to => 'bob@example.com', :from => 'neb@example.com', :subject => 'The goods', :body => LINKS[2] }
+  EMAIL_LINKS_2 = { :to => 'bob@example.com', :from => 'neb@example.com', :subject => 'The goods', :body => 'Read this: ' + LINKS[2] }
 
   before(:each) do
     reset_mailer
@@ -46,7 +46,7 @@ describe Pony::TestStruct do
     end
 
     it 'should raise an error when no email' do
-      current_email.should raise_error
+      lambda {current_email}.should raise_error
     end
   end
   
@@ -59,7 +59,7 @@ describe Pony::TestStruct do
       current_email_address.should_not == nil
       reset_mailer
       deliveries.empty?.should == true
-      current_email.should == nil
+      lambda {current_email}.should raise_error
       current_email_address.should == nil
     end
   end
@@ -83,32 +83,32 @@ describe Pony::TestStruct do
     end
 
     it 'should raise an error when no email' do
-      last_email_sent.should raise_error
+      lambda {last_email_sent}.should raise_error
     end
   end
 
   describe 'inbox_for' do
-    it 'should return only emails for one email address' do
+    it 'should return only email for one email address' do
       Pony.mail(EMAIL_1) && Pony.mail(EMAIL_2) && Pony.mail(EMAIL_3)
       Pony.mail(EMAIL_CC) && Pony.mail(EMAIL_BCC)
-      emails = inbox_for('foo@example.com')
-      emails.length.should == 3
-      email_matches(emails[0], EMAIL_1).should == true
-      email_matches(emails[1], EMAIL_CC).should == true
-      email_matches(emails[2], EMAIL_BCC).should == true
+      email = inbox_for(:address => 'foo@example.com')
+      email.length.should == 3
+      email_matches(email[0], EMAIL_1).should == true
+      email_matches(email[1], EMAIL_CC).should == true
+      email_matches(email[2], EMAIL_BCC).should == true
     end
 
-    it 'should return all emails when no address specified' do
+    it 'should return all email when no address specified' do
       Pony.mail(EMAIL_1) && Pony.mail(EMAIL_2) && Pony.mail(EMAIL_3)
       Pony.mail(EMAIL_CC) && Pony.mail(EMAIL_BCC)
-      emails = inbox
-      emails.length.should == 5
+      email = inbox
+      email.length.should == 5
     end
 
     it 'should set current_email_address' do
       Pony.mail(EMAIL_1) && Pony.mail(EMAIL_2) && Pony.mail(EMAIL_3)
       Pony.mail(EMAIL_CC) && Pony.mail(EMAIL_BCC)
-      emails = inbox_for('foo@example.com')
+      email = inbox_for(:address => 'foo@example.com')
       current_email_address.should == 'foo@example.com'
     end
 
@@ -116,13 +116,13 @@ describe Pony::TestStruct do
       Pony.mail(EMAIL_1) && Pony.mail(EMAIL_2) && Pony.mail(EMAIL_3)
       Pony.mail(EMAIL_CC) && Pony.mail(EMAIL_BCC)
       #set current address first
-      open_email_for('foo@example.com')
+      open_email_for(:address => 'foo@example.com')
       current_email_address.should == 'foo@example.com'
-      emails = inbox
-      emails.length.should == 3
-      email_matches(emails[0], EMAIL_1).should == true
-      email_matches(emails[1], EMAIL_CC).should == true
-      email_matches(emails[2], EMAIL_BCC).should == true
+      email = inbox
+      email.length.should == 3
+      email_matches(email[0], EMAIL_1).should == true
+      email_matches(email[1], EMAIL_CC).should == true
+      email_matches(email[2], EMAIL_BCC).should == true
     end
 
     it 'should not raise an error when there is no email' do
@@ -133,7 +133,7 @@ describe Pony::TestStruct do
   describe 'open_email_for' do
     it 'should return the first matching email' do
       Pony.mail(EMAIL_1) && Pony.mail(EMAIL_2) && Pony.mail(EMAIL_3)
-      email = open_email_for('bob@example.com')
+      email = open_email_for(:address => 'bob@example.com')
       email_matches(email, EMAIL_2).should == true
     end
 
@@ -158,7 +158,7 @@ describe Pony::TestStruct do
 
     it 'should set current_email_address' do
       Pony.mail(EMAIL_1) && Pony.mail(EMAIL_2) && Pony.mail(EMAIL_3)
-      email = open_email_for('bob@example.com')
+      email = open_email_for(:address => 'bob@example.com')
       email_matches(email, EMAIL_2).should == true
       current_email_address.should == 'bob@example.com'
     end
@@ -166,9 +166,9 @@ describe Pony::TestStruct do
     it 'should use current_email_address by default' do
       Pony.mail(EMAIL_1) && Pony.mail(EMAIL_2) && Pony.mail(EMAIL_3)
       #set current address to something else
-      inbox_for('foo@example.com')
+      inbox_for(:address => 'foo@example.com')
       current_email_address.should == 'foo@example.com'
-      email = open_email_for('bob@example.com')
+      email = open_email_for(:address => 'bob@example.com')
       email_matches(email, EMAIL_2).should == true
       current_email_address.should == 'bob@example.com'
     end
@@ -183,11 +183,11 @@ describe Pony::TestStruct do
     it 'should raise an error when no matching email' do
       Pony.mail(EMAIL_1) && Pony.mail(EMAIL_2) && Pony.mail(EMAIL_3)
       Pony.mail(EMAIL_CC) && Pony.mail(EMAIL_BCC)
-      open_email(:with_subject => 'viagra').should raise_error
+      lambda {open_email(:with_subject => 'viagra')}.should raise_error
     end
 
     it 'should raise an error when there is no email' do
-      open_email.should raise_error
+      lambda {open_email}.should raise_error
     end
   end
 
@@ -195,56 +195,57 @@ describe Pony::TestStruct do
     it 'should return all matching email' do
       Pony.mail(EMAIL_1) && Pony.mail(EMAIL_2) && Pony.mail(EMAIL_3)
       Pony.mail(EMAIL_CC) && Pony.mail(EMAIL_BCC)
-      email = find_email_for('neb@example.com')
-      email.length.should == 2
-      email_matches(emails[0], EMAIL_2).should == true
-      email_matches(emails[1], EMAIL_BCC).should == true
+      email = find_email_for(:address => 'foo@example.com')
+      email.length.should == 3
+      email_matches(email[0], EMAIL_1).should == true
+      email_matches(email[1], EMAIL_CC).should == true
+      email_matches(email[2], EMAIL_BCC).should == true
     end
 
-    it 'should find email by title' do
+    it 'should find email by subject' do
       Pony.mail(EMAIL_1) && Pony.mail(EMAIL_2) && Pony.mail(EMAIL_3)
       Pony.mail(EMAIL_CC) && Pony.mail(EMAIL_BCC)
       email = find_email(:with_subject => 'Hello')
       email.length.should == 2
-      email_matches(emails[0], EMAIL_1).should == true
-      email_matches(emails[1], EMAIL_BCC).should == true
+      email_matches(email[0], EMAIL_1).should == true
+      email_matches(email[1], EMAIL_BCC).should == true
     end
 
     it 'should find email by body' do
       Pony.mail(EMAIL_1) && Pony.mail(EMAIL_2) && Pony.mail(EMAIL_3)
       Pony.mail(EMAIL_CC) && Pony.mail(EMAIL_BCC)
-      email = find_email(:with_subject => 'Man')
+      email = find_email(:with_body => 'Man')
       email.length.should == 2
-      email_matches(emails[0], EMAIL_3).should == true
-      email_matches(emails[1], EMAIL_BCC).should == true
+      email_matches(email[0], EMAIL_3).should == true
+      email_matches(email[1], EMAIL_BCC).should == true
     end
 
     it 'should not set current_email' do
       Pony.mail(EMAIL_1) && Pony.mail(EMAIL_2) && Pony.mail(EMAIL_3)
       Pony.mail(EMAIL_CC) && Pony.mail(EMAIL_BCC)
-      email = find_email(:with_subject => 'Man')
-      current_email.should == nil
+      email = find_email(:with_body => 'Geez')
+      email_matches(current_email, EMAIL_BCC).should == true
     end
 
     it 'should set current_email_address' do
       Pony.mail(EMAIL_1) && Pony.mail(EMAIL_2) && Pony.mail(EMAIL_3)
       Pony.mail(EMAIL_CC) && Pony.mail(EMAIL_BCC)
       #set current address to something else
-      inbox_for('foo@example.com')
+      inbox_for(:address => 'foo@example.com')
       current_email_address.should == 'foo@example.com'
-      email = find_email_for('neb@example.com')
+      email = find_email_for(:address => 'neb@example.com')
       current_email_address.should == 'neb@example.com'
     end
 
     it 'should use current_email_address by default' do
       Pony.mail(EMAIL_1) && Pony.mail(EMAIL_2) && Pony.mail(EMAIL_3)
       Pony.mail(EMAIL_CC) && Pony.mail(EMAIL_BCC)
-      open_email_for('foo@example.com')
+      open_email_for(:address => 'foo@example.com')
       email = find_email
       email.length.should == 3
-      email_matches(emails[0], EMAIL_1).should == true
-      email_matches(emails[1], EMAIL_CC).should == true
-      email_matches(emails[2], EMAIL_BCC).should == true
+      email_matches(email[0], EMAIL_1).should == true
+      email_matches(email[1], EMAIL_CC).should == true
+      email_matches(email[2], EMAIL_BCC).should == true
     end
 
     it 'should return all email when address not specified' do
@@ -257,11 +258,11 @@ describe Pony::TestStruct do
     it 'should raise an error when no matching email' do
       Pony.mail(EMAIL_1) && Pony.mail(EMAIL_2) && Pony.mail(EMAIL_3)
       Pony.mail(EMAIL_CC) && Pony.mail(EMAIL_BCC)
-      find_email(:with_body => 'gold chains').should raise_error
+      lambda {find_email(:with_body => 'gold chains')}.should raise_error
     end
 
     it 'should raise an error when there is no email' do
-      find_email.should raise_error
+      lambda {find_email}.should raise_error
     end
   end
 
@@ -289,11 +290,11 @@ describe Pony::TestStruct do
       Pony.mail(EMAIL_1) && Pony.mail(EMAIL_2) && Pony.mail(EMAIL_3)
       open_email
       current_email.should_not == nil
-      email_links.should raise_error
+      lambda {email_links}.should raise_error
     end
 
     it 'should raise an error when no email specified, nor current_email' do
-      email_links.should raise_error
+      lambda {email_links}.should raise_error
     end
   end
 
@@ -318,8 +319,12 @@ describe Pony::TestStruct do
 
     it 'should raise an error when no matching links' do
       Pony.mail(EMAIL_LINKS_1) && Pony.mail(EMAIL_LINKS_2)
-      email_links_matching('food').should_not raise_error
-      email_links_matching('wood').should raise_error
+      lambda {email_links_matching('food')}.should_not raise_error
+      lambda {email_links_matching('wood')}.should raise_error
+    end
+
+    it 'should raise an error when no email specified, nor current_email' do
+      lambda {email_links_matching('example')}.should raise_error
     end
   end
 
