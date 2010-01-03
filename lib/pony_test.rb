@@ -26,7 +26,7 @@ module ::Pony
     alias_method :all_emails, :deliveries
 
     def current_email
-      @@current_email
+      @@current_email || raise('No current email')
     end
 
     def current_email=(email)
@@ -49,9 +49,15 @@ module ::Pony
 
     def last_email_sent
       self.current_email = deliveries.last
+      self.current_email
     end
 
-    def inbox_for(address = current_email_address)
+    def inbox_for(opts = {})
+      address = opts[:address]
+      if address.nil? || address.empty?
+        address = self.current_email_address
+      end
+
       unless address.nil? || address.empty?
         self.current_email_address = address
       end
@@ -69,15 +75,13 @@ module ::Pony
     end
     alias_method :inbox, :inbox_for
 
-    def open_email_for(address = current_email_address, opts = {})
-      self.current_email = find_email(address, opts).first
+    def open_email_for(opts = {})
+      self.current_email = find_email(opts).first
     end
     alias_method :open_email, :open_email_for
 
-    def find_email_for(address = current_email_address, opts = {})
-      puts 'address ' + address unless address.nil?
-      puts opts.inspect unless opts.nil?
-      email = inbox_for(address)
+    def find_email_for(opts = {})
+      email = inbox_for(opts)
 
       if opts[:with_subject]
         email = email.select { |m| m.subject =~ Regexp.new(opts[:with_subject]) }
