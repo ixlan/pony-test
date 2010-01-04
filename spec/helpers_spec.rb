@@ -1,7 +1,7 @@
 require 'spec_helper'
 
-describe Pony::TestStruct do
-  include Pony::TestStruct
+describe Pony::TestHelpers do
+  include Pony::TestHelpers
 
   def email_matches(tmail, hash)
     tmail2 = Pony.build_tmail(hash)
