@@ -1,27 +1,37 @@
 # Commonly used email steps
 #
-# The provided methods are:
+# The available methods are:
 #
-# all_emails
-# last_email_sent
-# reset_mailer
-# current_email_address
+# deliveries, all_email
 # current_email
+# current_email_address
+# reset_mailer
+# last_email_sent
 # inbox, inbox_for
 # open_email, open_email_for
 # find_email, find_email_for
 # email_links
 # email_links_matching
 #
-# General form for email scenarios are:
-#   - clear the email queue
-#   - execute steps that sends an email
-#   - check the user received an/no/[0-9] emails
-#   - open the email
-#   - inspect the email contents
-#   - interact with the email (e.g. click links)
+
 #
-# The Cucumber steps below are setup in this order.
+# A couple methods to handle some words in these steps
+#
+
+module EmailStepsWordHelpers
+  def get_address(word)
+    return nil if word == "I" || word == "they"
+    word
+  end
+
+  def get_amount(amount)
+    return 0 if amount == "no"
+    return 1 if amount == "a" || amount == "an"
+    amount.to_i
+  end
+end
+
+World(EmailStepsWordHelpers)
 
 #
 # Reset the e-mail queue within a scenario.
@@ -35,20 +45,20 @@ end
 # Check how many emails have been sent/received
 #
 
-Then /^(?:I|they|"([^"]*?)") should have (an|no|\d+) emails?$/ do |address, amount|
-  inbox_for(address).size.should == parse_email_count(amount)
+Then /^(?:I|they|"([^"]*?)") should have (an|no|\d+) emails?$/ do |person, amount|
+  inbox_for(:address => get_address(person)).size.should == get_amount(amount)
 end
 
 #
-# Accessing emails
+# Accessing email
 #
 
-When /^(?:I|they|"([^"]*?)") opens? the email with subject "([^"]*?)"$/ do |address, subject|
-  open_email(address, :with_subject => subject)
+When /^(?:I|they|"([^"]*?)") opens? the email with subject "([^"]*?)"$/ do |person, subject|
+  open_email(:address => get_address(person), :with_subject => subject)
 end
 
-When /^(?:I|they|"([^"]*?)") opens? the email with text "([^"]*?)"$/ do |address, text|
-  open_email(address, :with_text => text)
+When /^(?:I|they|"([^"]*?)") opens? the email with body "([^"]*?)"$/ do |person, body|
+  open_email(:address => get_address(person), :with_body => body)
 end
 
 #
@@ -71,7 +81,7 @@ Then /^(?:I|they) should see \/([^"]*?)\/ in the email body$/ do |text|
   current_email.body.should =~ Regexp.new(text)
 end
 
-Then /^(?:I|they) should see the email delivered from "([^"]*?)"$/ do |text|
+Then /^(?:I|they) should see the email is delivered from "([^"]*?)"$/ do |text|
   current_email.from.should include(text)
 end
 

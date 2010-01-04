@@ -327,21 +327,4 @@ describe Pony::TestStruct do
       lambda {email_links_matching('example')}.should raise_error
     end
   end
-
-  describe 'translate_address' do
-    it 'should return appropriate values' do
-      translate_address('I').should == nil
-      translate_address('they').should == nil
-      translate_address('fakeaddress').should == 'fakeaddress'
-    end
-  end
-
-  describe 'translate_email_count' do
-    it 'should return appropriate values' do
-      translate_email_count('no').should == 0
-      translate_email_count('a').should == 1
-      translate_email_count('an').should == 1
-      translate_email_count('99').should == 99
-    end
-  end
 end

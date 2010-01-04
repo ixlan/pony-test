@@ -23,7 +23,7 @@ module ::Pony
     def deliveries
       @@deliveries
     end
-    alias_method :all_emails, :deliveries
+    alias_method :all_email, :deliveries
 
     def current_email
       @@current_email || raise('No current email')
@@ -92,7 +92,7 @@ module ::Pony
       end
 
       if email.empty?
-        raise "Could not find email. \n Found the following emails:\n\n #{deliveries.to_s}"
+        raise "Could not find email. \n Found the following email:\n\n #{deliveries.to_s}"
       end
 
       email
@@ -110,17 +110,6 @@ module ::Pony
       links = email_links(email).select { |link| link =~ pattern }
       raise "No link found matching #{pattern.inspect} in #{email.body}" if links.nil? || links.empty?
       links
-    end
-
-    def translate_address(address)
-      return nil if address == "I" || address == "they"
-      address
-    end
-
-    def translate_email_count(amount)
-      return 0 if amount == "no"
-      return 1 if amount == "a" || amount == "an"
-      amount.to_i
     end
   end
 end
