@@ -1,31 +1,63 @@
-= Email Spec
+= Pony-Test
 
-A collection of RSpec matchers and Cucumber steps to make testing email with Pony go smoothly.
-This project is based on http://github.com/bmabey/email-spec, if you use Rails or ActionMailer, you should use that project instead.
-This project aims to make email_spec smaller and easier to understand by elminating default usage of Rails and ActionMailer.
+A collection of helper methods and Cucumber steps to make testing email with Pony go smoothly.  It works simply by overwriting the Pony mail method with one that stores the email in an array rather then sending it.  You can then access this email with the helper methods and perform whatever checks you want on them.
 
-== Setup
+== Usage
 
-Right now, I am including this project into others that need it using git submodules.  Inside your project:
+=== Helper methods
 
-  git submodule add git://github.com/johnmendonca/email-spec.git email_spec
+  deliveries, all_email
+  current_email
+  current_email_address
+  reset_mailer
+  last_email_sent
+  inbox, inbox_for
+  open_email, open_email_for
+  find_email, find_email_for
+  email_links
+  email_links_matching
 
-This will create a subdir in your project called email_spec that contains this repository.  To require files from this folder, you may first want to add the <tt>lib</tt> dir to the load path.  For example, from the file <tt>spec/spec_helper.rb</tt> you could add:
-
-  $: << File.join(File.expand_path(File.dirname(__FILE__)), %w{ .. email_spec lib })
-  
-  ...
-  require 'email_spec'
-
-There is no gem for this project now, as there already exists one for the upstream project.
+Comma separated lists are aliases. <tt>deliveries</tt> returns the whole array of emails.
+<tt>current_email</tt> returns either the last email sent, or the last email "opened" by <tt>open_email</tt>.
+The <tt>email_links</tt> methods and the Cucumber steps that check email contents will look to <tt>current_email</tt> by default.
+<tt>inbox_for(:address => 'foo@example.com')</tt> returns only email sent to that address, or all of them when given no address.
 
 === Cucumber
 
-To use email_spec in Cucumber include the helpers and matchers in <tt>features/support/env.rb</tt>:
+  Scenario: A new person signs up
+      Given I am at "/"
+      When I fill in "Email" with "quentin@example.com"
+      And I press "Sign up"
+      Then I should have an email
+      And I should see "confirm" in the email body
+
+      When I visit "confirm" in the email
+      Then I should see "Confirm your new account"
+
+Please read <tt>lib/email_steps.rb</tt> for the other steps.  For more examples, check out the <tt>examples</tt> folder for a small example app that implements the steps.
+
+== Setup
+
+For now, I am including this project into others with a symlink. If you clone this project next to your current working project, run this inside you current project:
+
+  ln -s ../pony-test pony-test
+
+To require files from this folder, you may first want to add the <tt>lib</tt> dir to the load path.  For example, from the file <tt>spec/spec_helper.rb</tt> you could add:
+
+  $: << File.join(File.expand_path(File.dirname(__FILE__)), %w{ .. pony-test lib })
+  
+  ...
+  require 'pony-test'
+
+A gem for this project is coming soon.
+
+=== Cucumber
+
+To use pony-test in Cucumber include the helpers in <tt>features/support/env.rb</tt>:
 
   World do
-    include EmailSpec::Helpers
-    include EmailSpec::Matchers
+    ...
+    include Pony::TestHelpers
   end
 
 This will load all the helpers that the steps rely on. You probably want all emails to be cleared for each scenario:
@@ -38,91 +70,24 @@ Also, copy <tt>email_steps.rb</tt> to <tt>features/step_definitions</tt> to get 
 
 === RSpec
 
-  You will need to include EmailSpec::Helpers and EmailSpec::Matchers in your example groups.
-  If you want to have access to the helpers and matchers in all of your examples you can do the following in your spec_helper.rb:
+You will need to include Pony::TestHelpers in your example groups.
+If you want to have access to the helpers in all of your examples you can do the following in your <tt>spec_helper.rb</tt>:
 
   Spec::Runner.configure do |config|
-    config.include(EmailSpec::Helpers)
-    config.include(EmailSpec::Matchers)
+    config.include(Pony::TestHelpers)
   end
 
-  Otherwise, you will need to include them in the example groups you wish to use them:
+Otherwise, you will need to include them in the example groups you wish to use them:
 
   describe "Signup Email" do
-    include EmailSpec::Helpers
-    include EmailSpec::Matchers
+    include Pony::TestHelpers
     ...
   end
 
-  Remember to call <tt>reset_mailer</tt> in a <tt>before</tt> block or whenever you want the emails to be reset.
+Remember to call <tt>reset_mailer</tt> in a <tt>before</tt> block or whenever you want the emails to be reset.
 
-== Usage
+== Acknowledgements
 
-=== Cucumber
-
-  Scenario: A new person signs up
-      Given I am at "/"
-      When I fill in "Email" with "quentin@example.com"
-      And I press "Sign up"
-      And I should receive an email
-      When I open the email
-      Then I should see "confirm" in the email
-      When I follow "confirm" in the email
-      Then I should see "Confirm your new account"
-
-For more examples, check out examples/rails_root in the source for a small example app that implements these steps.
-
-=== RSpec
-
-  ==== Testing In Isolation ====
-    It is often useful to test your mailers in isolation.  You can accomplish this by using mocks to verify that the mailer is being called in the correct place and then write focued examples for the actual mailer.  This is a simple example from the sample app found in the gem:
-
-    Verify that the mailer is used correctly in the controller (this would apply to a model as well):
-
-     describe "POST /signup (#signup)" do
-        it "should deliver the signup email" do
-          # expect
-          UserMailer.should_receive(:deliver_signup).with("email@example.com", "Jimmy Bean")
-          # when
-          post :signup, "Email" => "email@example.com", "Name" => "Jimmy Bean"
-        end
-      end
-
-    Examples for the #signup method in UserMailer:
-
-    describe "Signup Email" do
-      include EmailSpec::Helpers
-      include EmailSpec::Matchers
-      include ActionController::UrlWriter
-
-      before(:all) do
-        @email = UserMailer.create_signup("jojo@yahoo.com", "Jojo Binks")
-      end
-
-      it "should be set to be delivered to the email passed in" do
-        @email.should deliver_to("jojo@yahoo.com")
-      end
-
-      it "should contain the user's message in the mail body" do
-        @email.should have_text(/Jojo Binks/)
-      end
-
-      it "should contain a link to the confirmation link" do
-        @email.should have_text(/#{confirm_account_url}/)
-      end
-
-      it "should have the correct subject" do
-        @email.should have_subject(/Account confirmation/)
-      end
-
-    end
-
-    ==== Using the helpers when not testing in isolation ====
-
-      Don't. :)  Seriously, if you do just take a look at the helpers and use them as you wish.
-
-== Original Authors
-
-Ben Mabey, Aaron Gibralter, Mischa Fierer
-
-Please see History.txt for upcoming changsets and other contributors.
+This project is a major simplification and rewrite of the Email-Spec project:
+http://github.com/bmabey/email-spec
+If you are a Rails/ActionMailer user, you may want to check it out.
