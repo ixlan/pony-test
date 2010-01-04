@@ -1,29 +1,22 @@
-# Sets up the Rails environment for Cucumber
 ENV["RACK_ENV"] ||= "test"
-require File.expand_path(File.dirname(__FILE__) + '/../../app.rb')
 
-# Comment out the next line if you don't want Cucumber Unicode support
-require 'cucumber/formatter/unicode'
+require File.join(File.dirname(__FILE__), %w{ .. .. app })
+require File.join(File.dirname(__FILE__), %w{ .. .. .. .. lib pony-test })
 
 require 'rack/test'
 require 'webrat'
-require 'cucumber/webrat/table_locator' # Lets you do table.diff!(table_at('#my_table').to_a)
 
 Webrat.configure do |config|
   config.mode = :rack
 end
 
-require File.expand_path(File.dirname(__FILE__) + '../../../../../lib/pony_test')
-
-class AppWorld
-  include Rack::Test::Methods
-  include Webrat::Methods
-  include Webrat::Matchers
-  include PonyTest::Helpers
-
+World do
   def app
     Sinatra::Application.new
   end
-end
 
-World { AppWorld.new }
+  include Rack::Test::Methods
+  include Webrat::Methods
+  include Webrat::Matchers
+  include Pony::TestHelpers
+end
