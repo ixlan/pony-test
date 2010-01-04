@@ -5,12 +5,12 @@ unless defined?(Pony)
 end
 
 #reopen Pony module and replace mail method
-module ::Pony
+module Pony
   def self.mail(options)
-    TestStruct.deliver(build_tmail(options))
+    TestHelpers.deliver(build_tmail(options))
   end
 
-  module TestStruct
+  module TestHelpers
     @@deliveries = []
     @@current_email = nil
     @@current_email_address = nil

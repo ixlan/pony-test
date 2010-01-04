@@ -24,10 +24,10 @@ module EmailStepsWordHelpers
     word
   end
 
-  def get_amount(amount)
-    return 0 if amount == "no"
-    return 1 if amount == "a" || amount == "an"
-    amount.to_i
+  def get_amount(word)
+    return 0 if word == "no"
+    return 1 if word == "a" || word == "an"
+    word.to_i
   end
 end
 
@@ -52,6 +52,10 @@ end
 #
 # Accessing email
 #
+
+When /^(?:I|they|"([^"]*?)") opens? the email$/ do |person|
+  open_email(:address => get_address(person))
+end
 
 When /^(?:I|they|"([^"]*?)") opens? the email with subject "([^"]*?)"$/ do |person, subject|
   open_email(:address => get_address(person), :with_subject => subject)
@@ -97,7 +101,7 @@ end
 # Interact with Email Contents
 #
 
-When /^(?:I|they) follow "([^"]*?)" in the email$/ do |text|
+When /^(?:I|they) visit "([^"]*?)" in the email$/ do |text|
   visit email_links_matching(text).first
 end
 
