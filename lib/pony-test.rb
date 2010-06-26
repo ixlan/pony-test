@@ -7,7 +7,7 @@ end
 #reopen Pony module and replace mail method
 module Pony
   def self.mail(options)
-    TestHelpers.deliver(build_tmail(options))
+    TestHelpers.deliver(build_mail(options))
   end
 
   module TestHelpers
